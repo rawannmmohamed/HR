@@ -1,0 +1,38 @@
+{
+  "name": "employees",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/employees/src",
+  "tags": ["scope:employees", "type:portal"],
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vite --config apps/employees/vite.config.ts --host 127.0.0.1 --port 5174",
+        "cwd": "."
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/dist/apps/employees"],
+      "options": {
+        "command": "tsc -p apps/employees/tsconfig.app.json && vite build --config apps/employees/vite.config.ts",
+        "cwd": "."
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "oxlint apps/employees/src packages/shared/src",
+        "cwd": "."
+      }
+    },
+    "preview": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vite preview --config apps/employees/vite.config.ts --host 127.0.0.1 --port 4174",
+        "cwd": "."
+      }
+    }
+  }
+}

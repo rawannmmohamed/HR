@@ -1,0 +1,38 @@
+{
+  "name": "admin",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/admin/src",
+  "tags": ["scope:admin", "type:portal"],
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vite --config apps/admin/vite.config.ts --host 127.0.0.1 --port 5173",
+        "cwd": "."
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/dist/apps/admin"],
+      "options": {
+        "command": "tsc -p apps/admin/tsconfig.app.json && vite build --config apps/admin/vite.config.ts",
+        "cwd": "."
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "oxlint apps/admin/src packages/shared/src",
+        "cwd": "."
+      }
+    },
+    "preview": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vite preview --config apps/admin/vite.config.ts --host 127.0.0.1 --port 4173",
+        "cwd": "."
+      }
+    }
+  }
+}

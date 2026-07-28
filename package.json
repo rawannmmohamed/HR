@@ -3,11 +3,22 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "oxlint",
-    "preview": "vite preview"
+    "dev": "nx serve admin",
+    "dev:admin": "nx serve admin",
+    "dev:employees": "nx serve employees",
+    "build": "nx run-many -t build",
+    "build:admin": "nx build admin",
+    "build:employees": "nx build employees",
+    "lint": "nx run-many -t lint",
+    "lint:admin": "nx lint admin",
+    "lint:employees": "nx lint employees",
+    "preview:admin": "nx preview admin",
+    "preview:employees": "nx preview employees"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.3.3",
@@ -21,10 +32,13 @@
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
+    "@nx/react": "^23.1.0",
+    "@nx/vite": "^23.1.0",
     "@types/node": "^24.13.2",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.4",
+    "nx": "^23.1.0",
     "oxlint": "^1.71.0",
     "typescript": "~6.0.2",
     "vite": "^8.1.1"
