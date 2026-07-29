@@ -6,21 +6,35 @@ export type WorkspaceNavItem = {
   badge?: string;
 };
 
+export type WorkspaceSearchItem = {
+  category: string;
+  description?: string;
+  keywords?: string[];
+  label: string;
+};
+
 export type WorkspaceShellProps = {
   activeItem: string;
   children: ReactNode;
   navItems: WorkspaceNavItem[];
   notificationCount: number;
   onNavChange?: (label: string) => void;
+  searchItems?: WorkspaceSearchItem[];
   subtitle: string;
   title: string;
   userInitial: string;
   userName: string;
 };
 
-export type WorkspaceSidebarProps = Pick<WorkspaceShellProps, "activeItem" | "navItems" | "onNavChange" | "subtitle" | "title">;
+export type WorkspaceSidebarProps = Pick<WorkspaceShellProps, "activeItem" | "navItems" | "onNavChange" | "subtitle" | "title"> & {
+  isCollapsed: boolean;
+  onCollapseToggle: () => void;
+  variant?: "desktop" | "mobile";
+};
 
-export type WorkspaceTopbarProps = Pick<WorkspaceShellProps, "notificationCount" | "userInitial" | "userName">;
+export type WorkspaceTopbarProps = Pick<WorkspaceShellProps, "notificationCount" | "searchItems" | "userInitial" | "userName"> & {
+  onMenuToggle: () => void;
+};
 
 export type WorkspaceHeroProps = {
   action?: ReactNode;

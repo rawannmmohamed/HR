@@ -1,4 +1,4 @@
-import { BarChart3, CalendarCheck, Clock3, FileWarning, LayoutDashboard, UserCheck, UsersRound } from "lucide-react";
+import { BarChart3, CalendarCheck, Clock3, FileWarning, LayoutDashboard, UsersRound } from "lucide-react";
 import type { AdminDashboardNavItem, AdminSummaryCard } from "./types";
 
 export const adminDashboardUser = {
@@ -19,6 +19,5 @@ export const adminDashboardNavItems: AdminDashboardNavItem[] = [
 export const adminSummaryCards: AdminSummaryCard[] = [
   { id: "activeEmployees", label: "Active employees", icon: UsersRound, tone: "violet" },
   { id: "leavePending", label: "Leave approvals", icon: CalendarCheck, tone: "amber" },
-  { id: "attendanceExceptions", label: "Attendance exceptions", icon: UserCheck, tone: "emerald" },
   { id: "contractsExpiring", label: "Contracts expiring", icon: FileWarning, tone: "rose" },
 ];

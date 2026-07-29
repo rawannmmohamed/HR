@@ -8,23 +8,24 @@ import { LeaveApprovalsPanel } from "../components/leave-approvals-panel";
 import { adminDashboardNavItems, adminDashboardUser, adminSummaryCards } from "../constants";
 import { attendanceRows, employees, leaveRequests } from "../data/dashboard-data";
 import type { AdminSummaryCardId } from "../types";
+import { buildAdminDashboardSearchItems } from "../utils/dashboard-search";
 
 export function DashboardRoute() {
   const pendingLeaveRequests = leaveRequests.filter((request) => request.status === "Pending").length;
-  const attendanceExceptions = attendanceRows.filter((row) => row.tone === "warning" || row.tone === "danger").length;
   const expiringContracts = employees.filter((employee) => employee.status === "Contract review").length;
   const summaryValues: Record<AdminSummaryCardId, string> = {
     activeEmployees: String(employees.length),
     leavePending: String(pendingLeaveRequests),
-    attendanceExceptions: String(attendanceExceptions),
     contractsExpiring: String(expiringContracts),
   };
+  const searchItems = buildAdminDashboardSearchItems({ attendanceRows, employees, leaveRequests, summaryValues });
 
   return (
     <WorkspaceShell
       activeItem="Dashboard"
       navItems={adminDashboardNavItems}
       notificationCount={adminDashboardUser.notificationCount}
+      searchItems={searchItems}
       subtitle="People operations"
       title="HR System"
       userInitial="H"
@@ -48,7 +49,7 @@ export function DashboardRoute() {
         <AttendanceReviewPanel rows={attendanceRows} />
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1fr_340px]">
+      <div className="grid min-w-0 gap-6 2xl:grid-cols-[minmax(0,1fr)_minmax(300px,360px)]">
         <EmployeeRecordsPanel employees={employees} />
         <ContractAlertsPanel employees={employees} />
       </div>

@@ -17,18 +17,18 @@ import { statusVariant } from "../utils/status-variant";
 
 export function EmployeeRecordsPanel({ employees }: EmployeeRecordsPanelProps) {
   return (
-    <Card className="rounded-[18px] border-border bg-card shadow-xl shadow-black/5 dark:border-white/10 dark:bg-[#141417] dark:shadow-black/20">
-      <CardContent className="p-7">
-        <div className="flex items-center justify-between gap-4">
+    <Card className="min-w-0 overflow-hidden rounded-[18px] border-border bg-card shadow-xl shadow-black/5 dark:border-white/10 dark:bg-[#141417] dark:shadow-black/20">
+      <CardContent className="p-5 sm:p-7">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <h2 className="text-lg font-bold text-foreground dark:text-white">Employee records</h2>
-          <Button variant="ghost" size="sm">
+          <Button className="shrink-0" variant="ghost" size="sm">
             View directory
             <ArrowRight size={15} aria-hidden="true" />
           </Button>
         </div>
 
-        <div className="mt-5">
-          <Table>
+        <div className="mt-5 -mx-5 sm:-mx-7">
+          <Table className="min-w-[820px]">
             <TableHeader>
               <TableRow>
                 <TableHead>Employee</TableHead>
@@ -45,13 +45,13 @@ export function EmployeeRecordsPanel({ employees }: EmployeeRecordsPanelProps) {
 
                 return (
                   <TableRow key={employee.id}>
-                    <TableCell>
+                    <TableCell className="min-w-[210px]">
                       <div className="font-medium">{employee.name}</div>
                       <div className="text-xs text-muted-foreground">
                         {employee.id} - {employee.role}
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="min-w-[180px]">
                       <div>{employee.department}</div>
                       <div className="text-xs text-muted-foreground">
                         {employee.location} - {employee.manager}
@@ -69,7 +69,7 @@ export function EmployeeRecordsPanel({ employees }: EmployeeRecordsPanelProps) {
                       </div>
                       <Progress value={leavePercent} />
                     </TableCell>
-                    <TableCell>{employee.contractEnds}</TableCell>
+                    <TableCell className="whitespace-nowrap">{employee.contractEnds}</TableCell>
                   </TableRow>
                 );
               })}

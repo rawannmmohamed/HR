@@ -6,18 +6,18 @@ export function ContractAlertsPanel({ employees }: ContractAlertsPanelProps) {
   const employeesInReview = employees.filter((employee) => employee.status === "Contract review");
 
   return (
-    <Card className="rounded-[18px] border-border bg-card shadow-xl shadow-black/5 dark:border-white/10 dark:bg-[#141417] dark:shadow-black/20">
-      <CardContent className="p-7">
+    <Card className="min-w-0 rounded-[18px] border-border bg-card shadow-xl shadow-black/5 dark:border-white/10 dark:bg-[#141417] dark:shadow-black/20">
+      <CardContent className="p-5 sm:p-7">
         <div className="flex items-center gap-3">
           <FileWarning size={20} className="text-muted-foreground dark:text-[#9ca3af]" aria-hidden="true" />
           <h2 className="text-lg font-bold text-foreground dark:text-white">Contract alerts</h2>
         </div>
 
-        <div className="mt-6 space-y-3">
+        <div className="mt-6 grid gap-3 md:grid-cols-2 2xl:grid-cols-1">
           {employeesInReview.map((employee) => (
             <div key={employee.id} className="rounded-xl border border-border bg-rose-50 p-4 dark:border-white/10 dark:bg-rose-950/20">
-              <div className="flex items-start justify-between gap-3">
-                <div>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0">
                   <p className="font-semibold text-foreground dark:text-white">{employee.name}</p>
                   <p className="text-sm text-muted-foreground">{employee.role}</p>
                 </div>

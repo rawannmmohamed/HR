@@ -58,6 +58,7 @@ html {
 
 body {
   margin: 0;
+  width: 100vw;
   min-width: 320px;
   min-height: 100vh;
   color: var(--color-foreground);

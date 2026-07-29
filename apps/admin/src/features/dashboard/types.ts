@@ -3,7 +3,7 @@ import type { ElementType } from "react";
 export type EmployeeStatus = "Active" | "Probation" | "Contract review";
 export type LeaveStatus = "Pending" | "Approved" | "Rejected";
 export type StatusTone = "default" | "success" | "warning" | "danger";
-export type AdminSummaryCardId = "activeEmployees" | "leavePending" | "attendanceExceptions" | "contractsExpiring";
+export type AdminSummaryCardId = "activeEmployees" | "leavePending" | "contractsExpiring";
 export type SummaryTone = "violet" | "amber" | "emerald" | "rose";
 
 export type Employee = {

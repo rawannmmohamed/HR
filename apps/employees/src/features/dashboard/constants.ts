@@ -1,12 +1,4 @@
-import {
-  Bell,
-  Briefcase,
-  Clock3,
-  Grid2X2,
-  UsersRound,
-  WalletCards,
-  WalletMinimal,
-} from "lucide-react";
+import { Briefcase, Clock3, Grid2X2, UsersRound, WalletCards, WalletMinimal } from "lucide-react";
 import type { EmployeeDashboardNavItem, EmployeeSummaryCard, LeaveBalance, PersonOffToday } from "./types";
 
 export const employeeDashboardUser = {
@@ -21,7 +13,6 @@ export const employeeDashboardNavItems: EmployeeDashboardNavItem[] = [
   { label: "Permissions", icon: Clock3 },
   { label: "Balances", icon: WalletMinimal },
   { label: "Who's Off", icon: UsersRound },
-  { label: "Notifications", icon: Bell, badge: "5" },
 ];
 
 export const employeeSummaryCards: EmployeeSummaryCard[] = [

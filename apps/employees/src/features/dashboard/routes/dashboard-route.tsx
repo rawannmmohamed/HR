@@ -6,13 +6,17 @@ import { PendingRequestsPanel } from "../components/pending-requests-panel";
 import { UpcomingHolidaysPanel } from "../components/upcoming-holidays-panel";
 import { WhosOffTodayPanel } from "../components/whos-off-today-panel";
 import { employeeDashboardNavItems, employeeDashboardUser, employeeSummaryCards, leaveBalances, peopleOffToday } from "../constants";
+import { buildEmployeeDashboardSearchItems } from "../utils/dashboard-search";
 
 export function DashboardRoute() {
+  const searchItems = buildEmployeeDashboardSearchItems({ leaveBalances, peopleOffToday, summaryCards: employeeSummaryCards });
+
   return (
     <WorkspaceShell
       activeItem="Dashboard"
       navItems={employeeDashboardNavItems}
       notificationCount={employeeDashboardUser.notificationCount}
+      searchItems={searchItems}
       subtitle="People operations"
       title="HR System"
       userInitial="R"

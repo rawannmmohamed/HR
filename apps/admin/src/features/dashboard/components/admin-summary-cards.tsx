@@ -10,7 +10,7 @@ const toneClassNames = {
 
 export function AdminSummaryCards({ cards, values }: AdminSummaryCardsProps) {
   return (
-    <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+    <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
       {cards.map((card) => {
         const Icon = card.icon;
 
