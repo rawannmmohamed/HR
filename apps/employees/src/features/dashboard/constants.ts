@@ -79,8 +79,8 @@ export const leaveBalances: LeaveBalance[] = [
 
 export const peopleOffToday: PersonOffToday[] = [
   {
-    name: "Ahmed Dahy",
-    returnDate: "Back Jul 31, 2026",
-    initials: "AD",
+    name: "Ahmed Mohamed",
+    returnDate: "Back Aug 31, 2026",
+    initials: "AM",
   },
 ];
