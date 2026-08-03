@@ -13,34 +13,60 @@ public static class AuthEndpoints
         group.MapPost("/login", async (
             LoginRequest request,
             IAuthService authService,
+            HttpContext httpContext,
             CancellationToken cancellationToken) =>
         {
-            var response = await authService.LoginAsync(request, cancellationToken);
-            return response is null ? Results.Unauthorized() : Results.Ok(response);
+            var session = await authService.LoginAsync(request, cancellationToken);
+            if (session is null)
+            {
+                return Results.Unauthorized();
+            }
+
+            WriteRefreshTokenCookie(httpContext, session.RefreshToken, session.RefreshTokenExpiresAtUtc);
+            return Results.Ok(session.Response);
         })
         .AllowAnonymous()
         .WithName("Login");
 
         group.MapPost("/refresh", async (
-            RefreshTokenRequest request,
             IAuthService authService,
+            HttpContext httpContext,
             CancellationToken cancellationToken) =>
         {
-            var response = await authService.RefreshAsync(request, cancellationToken);
-            return response is null ? Results.Unauthorized() : Results.Ok(response);
+            var refreshToken = ReadRefreshTokenCookie(httpContext);
+            if (string.IsNullOrWhiteSpace(refreshToken))
+            {
+                return Results.Unauthorized();
+            }
+
+            var session = await authService.RefreshAsync(refreshToken, cancellationToken);
+            if (session is null)
+            {
+                ClearRefreshTokenCookie(httpContext);
+                return Results.Unauthorized();
+            }
+
+            WriteRefreshTokenCookie(httpContext, session.RefreshToken, session.RefreshTokenExpiresAtUtc);
+            return Results.Ok(session.Response);
         })
         .AllowAnonymous()
         .WithName("RefreshToken");
 
         group.MapPost("/logout", async (
-            RefreshTokenRequest request,
             IAuthService authService,
+            HttpContext httpContext,
             CancellationToken cancellationToken) =>
         {
-            await authService.LogoutAsync(request, cancellationToken);
+            var refreshToken = ReadRefreshTokenCookie(httpContext);
+            if (!string.IsNullOrWhiteSpace(refreshToken))
+            {
+                await authService.LogoutAsync(refreshToken, cancellationToken);
+            }
+
+            ClearRefreshTokenCookie(httpContext);
             return Results.NoContent();
         })
-        .RequireAuthorization()
+        .AllowAnonymous()
         .WithName("Logout");
 
         group.MapGet("/me", async (
@@ -67,5 +93,33 @@ public static class AuthEndpoints
     {
         var value = user.FindFirstValue(ClaimTypes.NameIdentifier);
         return Guid.TryParse(value, out var userId) ? userId : null;
+    }
+
+    private static string? ReadRefreshTokenCookie(HttpContext httpContext)
+    {
+        return httpContext.Request.Cookies.TryGetValue(
+            AuthCookieOptions.RefreshTokenCookieName,
+            out var refreshToken)
+            ? refreshToken
+            : null;
+    }
+
+    private static void WriteRefreshTokenCookie(
+        HttpContext httpContext,
+        string refreshToken,
+        DateTime expiresAtUtc)
+    {
+        httpContext.Response.Cookies.Append(
+            AuthCookieOptions.RefreshTokenCookieName,
+            refreshToken,
+            AuthCookieOptions.CreateRefreshTokenCookie(expiresAtUtc, httpContext.Request));
+    }
+
+    private static void ClearRefreshTokenCookie(HttpContext httpContext)
+    {
+        httpContext.Response.Cookies.Append(
+            AuthCookieOptions.RefreshTokenCookieName,
+            string.Empty,
+            AuthCookieOptions.CreateExpiredRefreshTokenCookie(httpContext.Request));
     }
 }

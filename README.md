@@ -14,9 +14,9 @@ The product is an Nx monorepo with two portals:
 - Frontend: React, TypeScript, Vite
 - UI system: shadcn-style components, Tailwind CSS tokens, Radix primitives where needed
 - Icons: lucide-react
-- Future state: Zustand
-- Future server state/API: React Query
-- Future backend: .NET
+- Client state: Zustand
+- Server state/API: React Query, Axios
+- Backend: .NET, Entity Framework Core, JWT auth
 
 ## Monorepo Structure
 
@@ -52,6 +52,12 @@ packages/
       api/
       design-system/
 nx.json
+backend/
+  HR.Api/
+  HR.Application/
+  HR.Contracts/
+  HR.Domain/
+  HR.Infrastructure/
 ```
 
 The admin portal contains the first HR prototype. The employees portal contains the first employee self-service shell. Shared UI primitives and utilities live in `packages/shared`.
@@ -100,6 +106,42 @@ The first prototype currently contains:
 - Leave balance indicators
 - Contract expiry alert
 - Shared shadcn-style UI primitives under `packages/shared/src/components/ui`
+- .NET API dashboard endpoints
+- JWT auth with HTTP-only refresh-token cookies
+
+## Backend Auth
+
+Local development users:
+
+```txt
+Admin:
+admin@hrsystem.local
+Admin@12345
+
+Employee:
+employee@hrsystem.local
+Employee@12345
+```
+
+Auth endpoints:
+
+```txt
+POST /api/auth/login
+POST /api/auth/refresh
+POST /api/auth/logout
+GET  /api/auth/me
+```
+
+The frontend receives only the short-lived access token and user profile. Refresh tokens are stored by the API in an HTTP-only cookie and are not exposed to JavaScript.
+
+Dashboard access is role-protected:
+
+```txt
+GET /api/admin/dashboard      HR Admin only
+GET /api/employees/dashboard  Employee only
+```
+
+The employee dashboard uses the employee identity from the JWT. Do not send `employeeNumber` from the frontend.
 
 ## Local Commands
 
@@ -110,6 +152,9 @@ npm run dev:admin
 npm run dev:employees
 npm run build
 npm run lint
+npm run dev:api
+npm run build:backend
+npm run db:migrate
 ```
 
 Nx project commands:

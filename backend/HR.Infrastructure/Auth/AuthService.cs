@@ -12,7 +12,7 @@ internal sealed class AuthService(
     PasswordHasher<AppUser> passwordHasher,
     ITokenService tokenService) : IAuthService
 {
-    public async Task<AuthResponse?> LoginAsync(LoginRequest request, CancellationToken cancellationToken)
+    public async Task<AuthSession?> LoginAsync(LoginRequest request, CancellationToken cancellationToken)
     {
         var normalizedEmail = NormalizeEmail(request.Email);
         var user = await GetUserByEmailAsync(normalizedEmail, cancellationToken);
@@ -31,9 +31,9 @@ internal sealed class AuthService(
         return await IssueAuthResponseAsync(user, cancellationToken);
     }
 
-    public async Task<AuthResponse?> RefreshAsync(RefreshTokenRequest request, CancellationToken cancellationToken)
+    public async Task<AuthSession?> RefreshAsync(string refreshTokenValue, CancellationToken cancellationToken)
     {
-        var tokenHash = tokenService.HashRefreshToken(request.RefreshToken);
+        var tokenHash = tokenService.HashRefreshToken(refreshTokenValue);
         var refreshToken = await dbContext.RefreshTokens
             .Include(token => token.User)
             .ThenInclude(user => user!.Employee)
@@ -63,9 +63,9 @@ internal sealed class AuthService(
         return CreateAuthResponse(refreshToken.User, newRefreshToken, newRefreshTokenExpiresAtUtc);
     }
 
-    public async Task LogoutAsync(RefreshTokenRequest request, CancellationToken cancellationToken)
+    public async Task LogoutAsync(string refreshTokenValue, CancellationToken cancellationToken)
     {
-        var tokenHash = tokenService.HashRefreshToken(request.RefreshToken);
+        var tokenHash = tokenService.HashRefreshToken(refreshTokenValue);
         var refreshToken = await dbContext.RefreshTokens
             .FirstOrDefaultAsync(token => token.TokenHash == tokenHash, cancellationToken);
 
@@ -85,7 +85,7 @@ internal sealed class AuthService(
         return user is null ? null : MapCurrentUser(user);
     }
 
-    private async Task<AuthResponse> IssueAuthResponseAsync(AppUser user, CancellationToken cancellationToken)
+    private async Task<AuthSession> IssueAuthResponseAsync(AppUser user, CancellationToken cancellationToken)
     {
         var refreshToken = tokenService.CreateRefreshToken();
         var refreshTokenHash = tokenService.HashRefreshToken(refreshToken);
@@ -103,7 +103,7 @@ internal sealed class AuthService(
         return CreateAuthResponse(user, refreshToken, refreshTokenExpiresAtUtc);
     }
 
-    private AuthResponse CreateAuthResponse(
+    private AuthSession CreateAuthResponse(
         AppUser user,
         string refreshToken,
         DateTime refreshTokenExpiresAtUtc)
@@ -113,12 +113,12 @@ internal sealed class AuthService(
             user.Employee?.EmployeeNumber,
             out var accessTokenExpiresAtUtc);
 
-        return new AuthResponse(
+        var response = new AuthResponse(
             accessToken,
-            refreshToken,
             accessTokenExpiresAtUtc,
-            refreshTokenExpiresAtUtc,
             MapCurrentUser(user));
+
+        return new AuthSession(response, refreshToken, refreshTokenExpiresAtUtc);
     }
 
     private static CurrentUserResponse MapCurrentUser(AppUser user)

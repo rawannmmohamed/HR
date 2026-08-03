@@ -93,11 +93,10 @@ Use this pattern for features such as:
 ## State Rules
 
 - Use local React state only for temporary UI state such as active tabs, search input, filters, and open panels.
-- Use Zustand later for client state that must be shared across components or routes.
-- Use React Query later for server state from the .NET API.
+- Use Zustand for client state that must be shared across components or routes.
+- Use React Query for server state from the .NET API.
 - Do not duplicate React Query server data into Zustand unless there is a clear UI-state reason.
 - Do not add global state before it is needed.
-- Do not add React Query until server/API integration begins or the user asks for it.
 
 React Query server state will eventually include:
 
@@ -110,15 +109,28 @@ React Query server state will eventually include:
 
 ## API Rules
 
-The .NET backend will be added later. Until then, use realistic mock data close to the eventual API shape.
-
-When API work begins:
+The .NET backend owns business rules, auth, persistence, and protected API access.
 
 - Keep endpoint bindings near the feature that uses them.
 - Move only shared API primitives into `packages/shared`.
 - Keep request and response types explicit.
 - Prefer typed query keys for React Query.
 - Keep backend naming consistent with the .NET contracts.
+- Keep `api` folders for fetching only.
+- Keep request/response/domain types in a separate `types` folder.
+- Keep reusable utility functions in separate utility files.
+
+## Auth Rules
+
+- Use JWT access tokens for API authorization.
+- Use HTTP-only refresh-token cookies; do not store refresh tokens in local storage, session storage, or Zustand.
+- Keep the access token in memory through the auth store.
+- Use global Axios interceptors to attach access tokens and refresh once on `401`.
+- Determine portal access from the backend user role claim/response:
+  - `HR Admin` can access the admin portal.
+  - `Employee` can access the employee portal.
+- Protect portal routes with explicit public and protected route wrappers.
+- The employee dashboard must use the authenticated employee from the JWT, not a frontend-supplied employee number.
 
 ## Nx Rules
 
