@@ -1,3 +1,5 @@
+using HR.Application.Dashboard;
+using HR.Infrastructure.Dashboard;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +15,7 @@ public static class DependencyInjection
             ?? throw new InvalidOperationException("Connection string 'HrDatabase' was not found.");
 
         services.AddDbContext<HrDbContext>(options => options.UseSqlServer(connectionString));
+        services.AddScoped<IDashboardQueryService, DashboardQueryService>();
 
         return services;
     }

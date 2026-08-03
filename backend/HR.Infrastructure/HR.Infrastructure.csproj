@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\HR.Application\HR.Application.csproj" />
     <ProjectReference Include="..\HR.Domain\HR.Domain.csproj" />
+    <ProjectReference Include="..\HR.Contracts\HR.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

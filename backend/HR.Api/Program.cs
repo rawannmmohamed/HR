@@ -1,3 +1,4 @@
+using HR.Api.Features.Dashboard;
 using HR.Application;
 using HR.Infrastructure;
 
@@ -11,5 +12,6 @@ var app = builder.Build();
 
 app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = "HR.Api" }))
     .WithName("HealthCheck");
+app.MapDashboardEndpoints();
 
 app.Run();
