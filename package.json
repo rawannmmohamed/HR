@@ -37,7 +37,8 @@
     "react-dom": "^19.2.8",
     "react-router": "^8.3.0",
     "tailwind-merge": "^3.6.0",
-    "tailwindcss": "^4.3.3"
+    "tailwindcss": "^4.3.3",
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@nx/react": "^23.1.0",
