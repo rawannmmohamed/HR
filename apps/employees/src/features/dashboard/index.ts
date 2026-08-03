@@ -1,1 +1,1 @@
-export * from "./routes/dashboard-route";
+export { default as DashboardRoutes } from "./routes";

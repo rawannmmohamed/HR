@@ -1,3 +1,4 @@
+export * from "./api";
 export * from "./components/ui/badge";
 export * from "./components/ui/button";
 export * from "./components/ui/card";
@@ -7,4 +8,5 @@ export * from "./components/ui/table";
 export * from "./components/theme-toggle";
 export * from "./hooks/use-theme";
 export * from "./lib/utils";
+export * from "./providers";
 export * from "./components/workspace";

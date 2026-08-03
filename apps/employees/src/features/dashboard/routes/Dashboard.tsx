@@ -1,15 +1,28 @@
 import { Plus } from "lucide-react";
 import { Button, WorkspaceHero, WorkspaceShell } from "@hr/shared";
+import { DashboardNotice } from "../components/dashboard-notice";
 import { EmployeeSummaryCards } from "../components/employee-summary-cards";
 import { LeaveBalanceGrid } from "../components/leave-balance-grid";
 import { PendingRequestsPanel } from "../components/pending-requests-panel";
 import { UpcomingHolidaysPanel } from "../components/upcoming-holidays-panel";
 import { WhosOffTodayPanel } from "../components/whos-off-today-panel";
 import { employeeDashboardNavItems, employeeDashboardUser, employeeSummaryCards, leaveBalances, peopleOffToday } from "../constants";
+import { useEmployeeDashboardQuery } from "../hooks/use-employee-dashboard-query";
+import { mapLeaveBalance, mapPersonOffToday, mapSummaryCards } from "../utils/dashboard-api-mappers";
 import { buildEmployeeDashboardSearchItems } from "../utils/dashboard-search";
 
-export function DashboardRoute() {
-  const searchItems = buildEmployeeDashboardSearchItems({ leaveBalances, peopleOffToday, summaryCards: employeeSummaryCards });
+export default function Dashboard() {
+  const { data: dashboard, isError, isLoading } = useEmployeeDashboardQuery();
+  const dashboardSummaryCards = dashboard ? mapSummaryCards(dashboard.summary) : employeeSummaryCards;
+  const dashboardLeaveBalances = dashboard?.leaveBalances.map(mapLeaveBalance) ?? leaveBalances;
+  const dashboardPeopleOffToday = dashboard?.peopleOffToday.map(mapPersonOffToday) ?? peopleOffToday;
+  const pendingRequestsTotal = dashboard?.pendingRequestsTotal ?? 0;
+  const employeeName = dashboard?.name ?? employeeDashboardUser.name;
+  const searchItems = buildEmployeeDashboardSearchItems({
+    leaveBalances: dashboardLeaveBalances,
+    peopleOffToday: dashboardPeopleOffToday,
+    summaryCards: dashboardSummaryCards,
+  });
 
   return (
     <WorkspaceShell
@@ -20,7 +33,7 @@ export function DashboardRoute() {
       subtitle="People operations"
       title="HR System"
       userInitial="R"
-      userName={employeeDashboardUser.name}
+      userName={employeeName}
     >
       <WorkspaceHero
         action={
@@ -30,14 +43,18 @@ export function DashboardRoute() {
           </Button>
         }
         dateLabel={employeeDashboardUser.dateLabel}
-        title={`Good afternoon, ${employeeDashboardUser.name}`}
+        title={`Good afternoon, ${employeeName}`}
       />
-      <EmployeeSummaryCards cards={employeeSummaryCards} />
-      <LeaveBalanceGrid balances={leaveBalances} />
+
+      {isLoading ? <DashboardNotice message="Loading dashboard data..." /> : null}
+      {isError ? <DashboardNotice message="Backend unavailable. Showing saved dashboard sample data." tone="warning" /> : null}
+
+      <EmployeeSummaryCards cards={dashboardSummaryCards} />
+      <LeaveBalanceGrid balances={dashboardLeaveBalances} />
 
       <div className="grid gap-6 xl:grid-cols-[1.35fr_0.65fr]">
-        <PendingRequestsPanel total={0} />
-        <WhosOffTodayPanel people={peopleOffToday} />
+        <PendingRequestsPanel total={pendingRequestsTotal} />
+        <WhosOffTodayPanel people={dashboardPeopleOffToday} />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-2">
