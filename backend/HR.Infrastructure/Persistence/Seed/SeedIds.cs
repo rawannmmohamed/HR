@@ -49,4 +49,7 @@ internal static class SeedIds
     internal static readonly Guid OmarContractId = Guid.Parse("70000000-0000-0000-0000-000000000002");
     internal static readonly Guid MariamContractId = Guid.Parse("70000000-0000-0000-0000-000000000003");
     internal static readonly Guid YoussefContractId = Guid.Parse("70000000-0000-0000-0000-000000000004");
+
+    internal static readonly Guid AdminUserId = Guid.Parse("80000000-0000-0000-0000-000000000001");
+    internal static readonly Guid EmployeeUserId = Guid.Parse("80000000-0000-0000-0000-000000000002");
 }

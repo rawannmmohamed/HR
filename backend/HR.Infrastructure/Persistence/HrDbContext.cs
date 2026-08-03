@@ -1,4 +1,5 @@
 using HR.Domain.Attendance;
+using HR.Domain.Auth;
 using HR.Domain.Contracts;
 using HR.Domain.Employees;
 using HR.Domain.Leave;
@@ -9,6 +10,7 @@ namespace HR.Infrastructure.Persistence;
 
 public sealed class HrDbContext(DbContextOptions<HrDbContext> options) : DbContext(options)
 {
+    public DbSet<AppUser> AppUsers => Set<AppUser>();
     public DbSet<AttendanceRecord> AttendanceRecords => Set<AttendanceRecord>();
     public DbSet<Contract> Contracts => Set<Contract>();
     public DbSet<Department> Departments => Set<Department>();
@@ -16,6 +18,7 @@ public sealed class HrDbContext(DbContextOptions<HrDbContext> options) : DbConte
     public DbSet<LeaveBalance> LeaveBalances => Set<LeaveBalance>();
     public DbSet<LeaveRequest> LeaveRequests => Set<LeaveRequest>();
     public DbSet<LeaveType> LeaveTypes => Set<LeaveType>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
