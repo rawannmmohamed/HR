@@ -109,7 +109,7 @@ The first prototype currently contains:
 - .NET API dashboard endpoints
 - JWT auth with HTTP-only refresh-token cookies
 
-## Backend Auth
+## login
 
 Local development users:
 
@@ -123,25 +123,6 @@ employee@hrsystem.local
 Employee@12345
 ```
 
-Auth endpoints:
-
-```txt
-POST /api/auth/login
-POST /api/auth/refresh
-POST /api/auth/logout
-GET  /api/auth/me
-```
-
-The frontend receives only the short-lived access token and user profile. Refresh tokens are stored by the API in an HTTP-only cookie and are not exposed to JavaScript.
-
-Dashboard access is role-protected:
-
-```txt
-GET /api/admin/dashboard      HR Admin only
-GET /api/employees/dashboard  Employee only
-```
-
-The employee dashboard uses the employee identity from the JWT. Do not send `employeeNumber` from the frontend.
 
 ## Local Commands
 
