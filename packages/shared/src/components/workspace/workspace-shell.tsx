@@ -9,6 +9,7 @@ export function WorkspaceShell({
   children,
   navItems,
   notificationCount,
+  onLogout,
   onNavChange,
   searchItems,
   subtitle,
@@ -56,6 +57,7 @@ export function WorkspaceShell({
         <section className="min-w-0 border-l border-border dark:border-white/10">
           <WorkspaceTopbar
             notificationCount={notificationCount}
+            onLogout={onLogout}
             onMenuToggle={() => setIsMobileSidebarOpen(true)}
             searchItems={searchItems}
             userInitial={userInitial}

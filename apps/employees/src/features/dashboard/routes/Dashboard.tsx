@@ -1,23 +1,28 @@
 import { Plus } from "lucide-react";
-import { Button, WorkspaceHero, WorkspaceShell } from "@hr/shared";
+import { Button, getAuthUserDisplayName, getAuthUserInitial, WorkspaceHero, WorkspaceShell } from "@hr/shared";
 import { DashboardNotice } from "../components/dashboard-notice";
 import { EmployeeSummaryCards } from "../components/employee-summary-cards";
 import { LeaveBalanceGrid } from "../components/leave-balance-grid";
 import { PendingRequestsPanel } from "../components/pending-requests-panel";
 import { UpcomingHolidaysPanel } from "../components/upcoming-holidays-panel";
 import { WhosOffTodayPanel } from "../components/whos-off-today-panel";
+import { useLogout } from "../../auth/hooks/use-logout";
+import { useAuthStore } from "../../auth/store/auth-store";
 import { employeeDashboardNavItems, employeeDashboardUser, employeeSummaryCards, leaveBalances, peopleOffToday } from "../constants";
 import { useEmployeeDashboardQuery } from "../hooks/use-employee-dashboard-query";
 import { mapLeaveBalance, mapPersonOffToday, mapSummaryCards } from "../utils/dashboard-api-mappers";
 import { buildEmployeeDashboardSearchItems } from "../utils/dashboard-search";
 
 export default function Dashboard() {
+  const authUser = useAuthStore((state) => state.user);
+  const logout = useLogout();
   const { data: dashboard, isError, isLoading } = useEmployeeDashboardQuery();
   const dashboardSummaryCards = dashboard ? mapSummaryCards(dashboard.summary) : employeeSummaryCards;
   const dashboardLeaveBalances = dashboard?.leaveBalances.map(mapLeaveBalance) ?? leaveBalances;
   const dashboardPeopleOffToday = dashboard?.peopleOffToday.map(mapPersonOffToday) ?? peopleOffToday;
   const pendingRequestsTotal = dashboard?.pendingRequestsTotal ?? 0;
-  const employeeName = dashboard?.name ?? employeeDashboardUser.name;
+  const employeeName = dashboard?.name ?? getAuthUserDisplayName(authUser, employeeDashboardUser.name);
+  const userInitial = getAuthUserInitial(authUser, "R");
   const searchItems = buildEmployeeDashboardSearchItems({
     leaveBalances: dashboardLeaveBalances,
     peopleOffToday: dashboardPeopleOffToday,
@@ -29,10 +34,11 @@ export default function Dashboard() {
       activeItem="Dashboard"
       navItems={employeeDashboardNavItems}
       notificationCount={employeeDashboardUser.notificationCount}
+      onLogout={logout}
       searchItems={searchItems}
       subtitle="People operations"
       title="HR System"
-      userInitial="R"
+      userInitial={userInitial}
       userName={employeeName}
     >
       <WorkspaceHero

@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Bell, Command, Menu, Search } from "lucide-react";
+import { Bell, Command, LogOut, Menu, Search } from "lucide-react";
 import { ThemeToggle } from "../theme-toggle";
 import type { WorkspaceTopbarProps } from "./types";
 
-export function WorkspaceTopbar({ notificationCount, onMenuToggle, searchItems = [], userInitial, userName }: WorkspaceTopbarProps) {
+export function WorkspaceTopbar({ notificationCount, onLogout, onMenuToggle, searchItems = [], userInitial, userName }: WorkspaceTopbarProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -113,6 +113,17 @@ export function WorkspaceTopbar({ notificationCount, onMenuToggle, searchItems =
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#f4b6a6] text-sm font-bold text-[#3a1710]">{userInitial}</div>
           <p className="hidden font-semibold text-foreground dark:text-white sm:block">{userName}</p>
         </div>
+        {onLogout ? (
+          <button
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition-colors hover:bg-muted hover:text-foreground dark:border-white/10 dark:bg-[#111114] dark:text-[#a2a8b8] dark:hover:bg-white/5 dark:hover:text-white"
+            type="button"
+            aria-label="Sign out"
+            title="Sign out"
+            onClick={onLogout}
+          >
+            <LogOut size={18} aria-hidden="true" />
+          </button>
+        ) : null}
       </div>
     </header>
   );
