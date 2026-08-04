@@ -1,11 +1,13 @@
 import { Plus } from "lucide-react";
-import { Button, WorkspaceHero, WorkspaceShell } from "@hr/shared";
+import { Button, getAuthUserDisplayName, getAuthUserInitial, WorkspaceHero, WorkspaceShell } from "@hr/shared";
 import { AdminSummaryCards } from "../components/admin-summary-cards";
 import { AttendanceReviewPanel } from "../components/attendance-review-panel";
 import { ContractAlertsPanel } from "../components/contract-alerts-panel";
 import { DashboardNotice } from "../components/dashboard-notice";
 import { EmployeeRecordsPanel } from "../components/employee-records-panel";
 import { LeaveApprovalsPanel } from "../components/leave-approvals-panel";
+import { useLogout } from "../../auth/hooks/use-logout";
+import { useAuthStore } from "../../auth/store/auth-store";
 import { adminDashboardNavItems, adminDashboardUser, adminSummaryCards } from "../constants";
 import { attendanceRows, employees, leaveRequests } from "../data/dashboard-data";
 import { useAdminDashboardQuery } from "../hooks/use-admin-dashboard-query";
@@ -14,6 +16,8 @@ import { mapContractAlert, mapEmployeeRecord, mapLeaveRequest } from "../utils/d
 import { buildAdminDashboardSearchItems } from "../utils/dashboard-search";
 
 export default function Dashboard() {
+  const authUser = useAuthStore((state) => state.user);
+  const logout = useLogout();
   const { data: dashboard, isError, isLoading } = useAdminDashboardQuery();
   const dashboardEmployees = dashboard?.employees.map(mapEmployeeRecord) ?? employees;
   const dashboardLeaveRequests = dashboard?.leaveRequests.map(mapLeaveRequest) ?? leaveRequests;
@@ -32,17 +36,20 @@ export default function Dashboard() {
     leaveRequests: dashboardLeaveRequests,
     summaryValues,
   });
+  const userName = getAuthUserDisplayName(authUser, adminDashboardUser.name);
+  const userInitial = getAuthUserInitial(authUser, "H");
 
   return (
     <WorkspaceShell
       activeItem="Dashboard"
       navItems={adminDashboardNavItems}
       notificationCount={adminDashboardUser.notificationCount}
+      onLogout={logout}
       searchItems={searchItems}
       subtitle="People operations"
       title="HR System"
-      userInitial="H"
-      userName={adminDashboardUser.name}
+      userInitial={userInitial}
+      userName={userName}
     >
       <WorkspaceHero
         action={

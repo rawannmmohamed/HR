@@ -18,6 +18,7 @@ export type WorkspaceShellProps = {
   children: ReactNode;
   navItems: WorkspaceNavItem[];
   notificationCount: number;
+  onLogout?: () => void;
   onNavChange?: (label: string) => void;
   searchItems?: WorkspaceSearchItem[];
   subtitle: string;
@@ -32,7 +33,7 @@ export type WorkspaceSidebarProps = Pick<WorkspaceShellProps, "activeItem" | "na
   variant?: "desktop" | "mobile";
 };
 
-export type WorkspaceTopbarProps = Pick<WorkspaceShellProps, "notificationCount" | "searchItems" | "userInitial" | "userName"> & {
+export type WorkspaceTopbarProps = Pick<WorkspaceShellProps, "notificationCount" | "onLogout" | "searchItems" | "userInitial" | "userName"> & {
   onMenuToggle: () => void;
 };
 
