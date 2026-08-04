@@ -1,5 +1,5 @@
 import type { AxiosInstance } from "axios";
-import type { AuthSession, AuthStore } from "./types";
+import type { AuthSession, AuthStore } from "../types";
 
 export async function bootstrapAuthSession(apiClient: AxiosInstance, authStore: AuthStore) {
   if (authStore.getState().status === "authenticated") {

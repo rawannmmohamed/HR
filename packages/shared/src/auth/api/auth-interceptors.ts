@@ -1,5 +1,5 @@
 import type { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from "axios";
-import type { AuthSession, AuthStore } from "./types";
+import type { AuthSession, AuthStore } from "../types";
 
 type AuthRequestConfig = InternalAxiosRequestConfig & {
   authRetry?: boolean;

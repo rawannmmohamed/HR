@@ -1,4 +1,4 @@
-import type { CurrentUser } from "./types";
+import type { CurrentUser } from "../types";
 
 export function getAuthUserDisplayName(user: CurrentUser | null, fallback: string) {
   return user?.displayName?.trim() || user?.email || fallback;

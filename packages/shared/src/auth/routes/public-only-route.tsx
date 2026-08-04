@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from "react-router";
-import type { AuthRole, AuthStore } from "./types";
+import type { AuthRole, AuthStore } from "../types";
 
 type PublicOnlyRouteProps = {
   allowedRole: AuthRole;
