@@ -6,24 +6,24 @@ internal static class AuthCookieOptions
 
     internal static CookieOptions CreateRefreshTokenCookie(
         DateTime expiresAtUtc,
-        HttpRequest request)
+        AuthCookieSettings settings)
     {
         return new CookieOptions
         {
             HttpOnly = true,
-            Secure = request.IsHttps,
+            Secure = settings.RequireSecureRefreshCookie,
             SameSite = SameSiteMode.Lax,
             Expires = expiresAtUtc,
             Path = "/api/auth"
         };
     }
 
-    internal static CookieOptions CreateExpiredRefreshTokenCookie(HttpRequest request)
+    internal static CookieOptions CreateExpiredRefreshTokenCookie(AuthCookieSettings settings)
     {
         return new CookieOptions
         {
             HttpOnly = true,
-            Secure = request.IsHttps,
+            Secure = settings.RequireSecureRefreshCookie,
             SameSite = SameSiteMode.Lax,
             Expires = DateTimeOffset.UnixEpoch,
             Path = "/api/auth"

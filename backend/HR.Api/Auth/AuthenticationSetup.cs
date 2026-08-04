@@ -8,9 +8,12 @@ namespace HR.Api.Auth;
 
 public static class AuthenticationSetup
 {
+    private const string DevelopmentSigningKey = "local-development-signing-key-change-before-production";
+
     public static IServiceCollection AddHrAuthentication(
         this IServiceCollection services,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IWebHostEnvironment environment)
     {
         var jwtOptions = configuration
             .GetSection(JwtOptions.SectionName)
@@ -20,6 +23,11 @@ public static class AuthenticationSetup
         if (jwtOptions.SigningKey.Length < 32)
         {
             throw new InvalidOperationException("JWT signing key must be at least 32 characters.");
+        }
+
+        if (!environment.IsDevelopment() && jwtOptions.SigningKey == DevelopmentSigningKey)
+        {
+            throw new InvalidOperationException("JWT signing key must be configured from a secure production secret.");
         }
 
         services
