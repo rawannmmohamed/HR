@@ -5,5 +5,8 @@ export function useAdminDashboardQuery() {
   return useQuery({
     queryKey: ["admin-dashboard"],
     queryFn: getAdminDashboard,
+    meta: {
+      errorMessage: "Could not load admin dashboard",
+    },
   });
 }

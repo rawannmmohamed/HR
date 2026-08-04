@@ -2,37 +2,74 @@ import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from "@ta
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { ApiError } from "../api";
-
-type QueryErrorState = {
-  message: string;
-  status?: number;
-};
+import { ToastViewport, type ToastMessage } from "../components/ui/toast";
+import { getErrorToastMessage } from "./query-error-messages";
+import { getQueryMessageMeta } from "./query-meta";
 
 type ReactQueryProviderProps = {
   children: ReactNode;
 };
 
 export function ReactQueryProvider({ children }: ReactQueryProviderProps) {
-  const [error, setError] = useState<QueryErrorState | null>(null);
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
+
+  function showToast(toast: Omit<ToastMessage, "id">) {
+    const id = crypto.randomUUID();
+    setToasts((currentToasts) => [...currentToasts.slice(-2), { ...toast, id }]);
+    window.setTimeout(() => {
+      setToasts((currentToasts) => currentToasts.filter((currentToast) => currentToast.id !== id));
+    }, 5000);
+  }
+
+  function dismissToast(id: string) {
+    setToasts((currentToasts) => currentToasts.filter((toast) => toast.id !== id));
+  }
+
   const [queryClient] = useState(
     () =>
       new QueryClient({
         queryCache: new QueryCache({
           onError: (queryError, query) => {
-            if (query.meta?.suppressGlobalError) {
+            const meta = getQueryMessageMeta(query.meta);
+
+            if (meta.suppressGlobalError) {
               return;
             }
 
-            setError(getQueryErrorState(queryError));
+            const errorToast = getErrorToastMessage(queryError);
+            showToast({
+              title: meta.errorMessage || errorToast.title,
+              description: meta.errorMessage ? errorToast.description : errorToast.description,
+              variant: "error",
+            });
           },
         }),
         mutationCache: new MutationCache({
-          onError: (mutationError, _variables, _context, mutation) => {
-            if (mutation.meta?.suppressGlobalError) {
+          onSuccess: (_data, _variables, _context, mutation) => {
+            const meta = getQueryMessageMeta(mutation.meta);
+
+            if (!meta.successMessage) {
               return;
             }
 
-            setError(getQueryErrorState(mutationError));
+            showToast({
+              title: meta.successMessage,
+              variant: "success",
+            });
+          },
+          onError: (mutationError, _variables, _context, mutation) => {
+            const meta = getQueryMessageMeta(mutation.meta);
+
+            if (meta.suppressGlobalError) {
+              return;
+            }
+
+            const errorToast = getErrorToastMessage(mutationError);
+            showToast({
+              title: meta.errorMessage || errorToast.title,
+              description: meta.errorMessage ? errorToast.description : errorToast.description,
+              variant: "error",
+            });
           },
         }),
         defaultOptions: {
@@ -53,38 +90,7 @@ export function ReactQueryProvider({ children }: ReactQueryProviderProps) {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      {error ? (
-        <div className="fixed bottom-5 right-5 z-50 max-w-sm rounded-lg border border-destructive/30 bg-card px-4 py-3 text-sm shadow-xl dark:border-red-400/20 dark:bg-[#141417]">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="font-semibold text-foreground dark:text-white">Request failed</p>
-              <p className="mt-1 text-muted-foreground dark:text-[#9ca3af]">{error.message}</p>
-            </div>
-            <button className="text-muted-foreground hover:text-foreground dark:text-[#9ca3af] dark:hover:text-white" type="button" onClick={() => setError(null)}>
-              Dismiss
-            </button>
-          </div>
-        </div>
-      ) : null}
+      <ToastViewport toasts={toasts} onDismiss={dismissToast} />
     </QueryClientProvider>
   );
-}
-
-function getQueryErrorState(error: unknown): QueryErrorState {
-  if (error instanceof ApiError) {
-    return {
-      message: error.status ? `Server returned ${error.status}.` : error.message,
-      status: error.status,
-    };
-  }
-
-  if (error instanceof Error) {
-    return {
-      message: error.message,
-    };
-  }
-
-  return {
-    message: "Something went wrong.",
-  };
 }
