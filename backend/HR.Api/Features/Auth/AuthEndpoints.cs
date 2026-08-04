@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using HR.Application.Auth;
 using HR.Contracts.Auth;
+using Microsoft.Extensions.Options;
 
 namespace HR.Api.Features.Auth;
 
@@ -14,6 +15,7 @@ public static class AuthEndpoints
             LoginRequest request,
             IAuthService authService,
             HttpContext httpContext,
+            IOptions<AuthCookieSettings> authCookieSettings,
             CancellationToken cancellationToken) =>
         {
             var session = await authService.LoginAsync(request, cancellationToken);
@@ -22,7 +24,7 @@ public static class AuthEndpoints
                 return Results.Unauthorized();
             }
 
-            WriteRefreshTokenCookie(httpContext, session.RefreshToken, session.RefreshTokenExpiresAtUtc);
+            WriteRefreshTokenCookie(httpContext, session.RefreshToken, session.RefreshTokenExpiresAtUtc, authCookieSettings.Value);
             return Results.Ok(session.Response);
         })
         .AllowAnonymous()
@@ -31,6 +33,7 @@ public static class AuthEndpoints
         group.MapPost("/refresh", async (
             IAuthService authService,
             HttpContext httpContext,
+            IOptions<AuthCookieSettings> authCookieSettings,
             CancellationToken cancellationToken) =>
         {
             var refreshToken = ReadRefreshTokenCookie(httpContext);
@@ -42,11 +45,11 @@ public static class AuthEndpoints
             var session = await authService.RefreshAsync(refreshToken, cancellationToken);
             if (session is null)
             {
-                ClearRefreshTokenCookie(httpContext);
+                ClearRefreshTokenCookie(httpContext, authCookieSettings.Value);
                 return Results.Unauthorized();
             }
 
-            WriteRefreshTokenCookie(httpContext, session.RefreshToken, session.RefreshTokenExpiresAtUtc);
+            WriteRefreshTokenCookie(httpContext, session.RefreshToken, session.RefreshTokenExpiresAtUtc, authCookieSettings.Value);
             return Results.Ok(session.Response);
         })
         .AllowAnonymous()
@@ -55,6 +58,7 @@ public static class AuthEndpoints
         group.MapPost("/logout", async (
             IAuthService authService,
             HttpContext httpContext,
+            IOptions<AuthCookieSettings> authCookieSettings,
             CancellationToken cancellationToken) =>
         {
             var refreshToken = ReadRefreshTokenCookie(httpContext);
@@ -63,7 +67,7 @@ public static class AuthEndpoints
                 await authService.LogoutAsync(refreshToken, cancellationToken);
             }
 
-            ClearRefreshTokenCookie(httpContext);
+            ClearRefreshTokenCookie(httpContext, authCookieSettings.Value);
             return Results.NoContent();
         })
         .AllowAnonymous()
@@ -107,19 +111,20 @@ public static class AuthEndpoints
     private static void WriteRefreshTokenCookie(
         HttpContext httpContext,
         string refreshToken,
-        DateTime expiresAtUtc)
+        DateTime expiresAtUtc,
+        AuthCookieSettings settings)
     {
         httpContext.Response.Cookies.Append(
             AuthCookieOptions.RefreshTokenCookieName,
             refreshToken,
-            AuthCookieOptions.CreateRefreshTokenCookie(expiresAtUtc, httpContext.Request));
+            AuthCookieOptions.CreateRefreshTokenCookie(expiresAtUtc, settings));
     }
 
-    private static void ClearRefreshTokenCookie(HttpContext httpContext)
+    private static void ClearRefreshTokenCookie(HttpContext httpContext, AuthCookieSettings settings)
     {
         httpContext.Response.Cookies.Append(
             AuthCookieOptions.RefreshTokenCookieName,
             string.Empty,
-            AuthCookieOptions.CreateExpiredRefreshTokenCookie(httpContext.Request));
+            AuthCookieOptions.CreateExpiredRefreshTokenCookie(settings));
     }
 }
