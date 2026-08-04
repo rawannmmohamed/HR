@@ -1,8 +1,16 @@
-import { apiClient, ReactQueryProvider, setupAuthInterceptors } from "@hr/shared";
-import type { ReactNode } from "react";
+import { apiClient, bootstrapAuthSession, ReactQueryProvider, setupAuthInterceptors } from "@hr/shared";
+import { useEffect, type ReactNode } from "react";
 import { useAuthStore } from "@/features/auth/store/auth-store";
 
 let authInterceptorsReady = false;
+
+function AuthBootstrap({ children }: { children: ReactNode }) {
+  useEffect(() => {
+    void bootstrapAuthSession(apiClient, useAuthStore);
+  }, []);
+
+  return children;
+}
 
 export function AppProviders({ children }: { children: ReactNode }) {
   if (!authInterceptorsReady) {
@@ -13,5 +21,9 @@ export function AppProviders({ children }: { children: ReactNode }) {
     authInterceptorsReady = true;
   }
 
-  return <ReactQueryProvider>{children}</ReactQueryProvider>;
+  return (
+    <ReactQueryProvider>
+      <AuthBootstrap>{children}</AuthBootstrap>
+    </ReactQueryProvider>
+  );
 }
