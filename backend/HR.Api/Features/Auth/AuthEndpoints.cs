@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using HR.Application.Auth;
 using HR.Contracts.Auth;
@@ -18,10 +19,23 @@ public static class AuthEndpoints
             IOptions<AuthCookieSettings> authCookieSettings,
             CancellationToken cancellationToken) =>
         {
+            var validationErrors = ValidateLoginRequest(request);
+            if (validationErrors.Count > 0)
+            {
+                return Results.ValidationProblem(
+                    validationErrors,
+                    title: "Validation failed",
+                    detail: "Please review the sign in information and try again.",
+                    statusCode: StatusCodes.Status400BadRequest);
+            }
+
             var session = await authService.LoginAsync(request, cancellationToken);
             if (session is null)
             {
-                return Results.Unauthorized();
+                return Results.Problem(
+                    title: "Sign in failed",
+                    detail: "Email or password is incorrect.",
+                    statusCode: StatusCodes.Status401Unauthorized);
             }
 
             WriteRefreshTokenCookie(httpContext, session.RefreshToken, session.RefreshTokenExpiresAtUtc, authCookieSettings.Value);
@@ -39,14 +53,20 @@ public static class AuthEndpoints
             var refreshToken = ReadRefreshTokenCookie(httpContext);
             if (string.IsNullOrWhiteSpace(refreshToken))
             {
-                return Results.Unauthorized();
+                return Results.Problem(
+                    title: "Session expired",
+                    detail: "Please sign in again to continue.",
+                    statusCode: StatusCodes.Status401Unauthorized);
             }
 
             var session = await authService.RefreshAsync(refreshToken, cancellationToken);
             if (session is null)
             {
                 ClearRefreshTokenCookie(httpContext, authCookieSettings.Value);
-                return Results.Unauthorized();
+                return Results.Problem(
+                    title: "Session expired",
+                    detail: "Please sign in again to continue.",
+                    statusCode: StatusCodes.Status401Unauthorized);
             }
 
             WriteRefreshTokenCookie(httpContext, session.RefreshToken, session.RefreshTokenExpiresAtUtc, authCookieSettings.Value);
@@ -81,11 +101,19 @@ public static class AuthEndpoints
             var userId = GetUserId(user);
             if (userId is null)
             {
-                return Results.Unauthorized();
+                return Results.Problem(
+                    title: "Session expired",
+                    detail: "Please sign in again to continue.",
+                    statusCode: StatusCodes.Status401Unauthorized);
             }
 
             var response = await authService.GetCurrentUserAsync(userId.Value, cancellationToken);
-            return response is null ? Results.Unauthorized() : Results.Ok(response);
+            return response is null
+                ? Results.Problem(
+                    title: "Session expired",
+                    detail: "Please sign in again to continue.",
+                    statusCode: StatusCodes.Status401Unauthorized)
+                : Results.Ok(response);
         })
         .RequireAuthorization()
         .WithName("GetCurrentUser");
@@ -97,6 +125,28 @@ public static class AuthEndpoints
     {
         var value = user.FindFirstValue(ClaimTypes.NameIdentifier);
         return Guid.TryParse(value, out var userId) ? userId : null;
+    }
+
+    private static Dictionary<string, string[]> ValidateLoginRequest(LoginRequest request)
+    {
+        var validationResults = new List<ValidationResult>();
+        var context = new ValidationContext(request);
+
+        if (Validator.TryValidateObject(request, context, validationResults, validateAllProperties: true))
+        {
+            return [];
+        }
+
+        return validationResults
+            .SelectMany(result => result.MemberNames.DefaultIfEmpty(string.Empty), (result, memberName) => new
+            {
+                MemberName = memberName,
+                ErrorMessage = result.ErrorMessage ?? "The field is invalid."
+            })
+            .GroupBy(error => error.MemberName)
+            .ToDictionary(
+                group => group.Key,
+                group => group.Select(error => error.ErrorMessage).ToArray());
     }
 
     private static string? ReadRefreshTokenCookie(HttpContext httpContext)

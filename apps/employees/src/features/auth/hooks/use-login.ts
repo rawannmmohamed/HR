@@ -24,5 +24,9 @@ export function useLogin() {
       setSession(session);
       navigate(ROUTER_CONSTANTS.DASHBOARD.DASHBOARD, { replace: true });
     },
+    meta: {
+      errorMessage: "Sign in failed",
+      successMessage: "Signed in successfully",
+    },
   });
 }

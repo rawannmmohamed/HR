@@ -5,5 +5,8 @@ export function useEmployeeDashboardQuery() {
   return useQuery({
     queryKey: ["employee-dashboard"],
     queryFn: getEmployeeDashboard,
+    meta: {
+      errorMessage: "Could not load your dashboard",
+    },
   });
 }

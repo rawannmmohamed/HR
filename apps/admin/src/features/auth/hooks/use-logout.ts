@@ -1,3 +1,4 @@
+import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { ROUTER_CONSTANTS } from "@/constants/routerConstants";
 import { logout } from "../api/auth-api";
@@ -7,12 +8,19 @@ export function useLogout() {
   const navigate = useNavigate();
   const clearSession = useAuthStore((state) => state.clearSession);
 
-  return async () => {
-    try {
-      await logout();
-    } finally {
+  const logoutMutation = useMutation({
+    mutationFn: logout,
+    onSettled: () => {
       clearSession();
       navigate(ROUTER_CONSTANTS.AUTH.SIGN_IN, { replace: true });
-    }
+    },
+    meta: {
+      errorMessage: "Sign out failed",
+      successMessage: "Signed out",
+    },
+  });
+
+  return () => {
+    logoutMutation.mutate();
   };
 }
